@@ -1,0 +1,7 @@
+Django==2.1.5
+django-mysql==2.4.1
+djangorestframework==3.9.1
+djangorestframework-api-key==0.3.1
+mysql==0.0.2
+mysqlclient==1.4.2.post1
+pytz==2018.9

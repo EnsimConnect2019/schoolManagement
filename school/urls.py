@@ -18,13 +18,16 @@ from django.urls import path, include
 from rest_framework import routers
 
 from api import views
-from api.views import UserCreate, UserView, LoginView, ClassNameView
+from api.views import UserCreate, UserView, LoginView, ClassNameView, ChildParentsRelationView
 
 routerSubject = routers.DefaultRouter()
 routerSubject.register('', views.SubjectView)
 
 routerClassRoom = routers.DefaultRouter()
 routerClassRoom.register('', views.ClassRoomView)
+
+routerHoliday = routers.DefaultRouter()
+routerHoliday.register('', views.HolidayView)
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -34,4 +37,6 @@ urlpatterns = [
     path('api/classes/', ClassNameView.as_view()),
     path('api/subjects/', include(routerSubject.urls)),
     path('api/classrooms/', include(routerClassRoom.urls)),
+    path('api/childparentsrelation/', ChildParentsRelationView.as_view()),
+    path('api/holidays/', include(routerHoliday.urls))
 ]

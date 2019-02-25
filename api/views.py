@@ -1,16 +1,18 @@
 from django.contrib.auth import authenticate
 from django.contrib.auth.models import User, Group
 from django.core.exceptions import ObjectDoesNotExist
+from itertools import chain
 
 # Create your views here.
+from django.http import JsonResponse
 
-from rest_framework import generics, status, viewsets, permissions
+from rest_framework import generics, status, viewsets, permissions, serializers
 from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from api.models import ClassName, Subject, ClassRoom
-from api.serializers import UserSerializer, ClassNameSerializers, SubjectSerializers, ClassRoomSerializers
+from api.models import ClassName, Subject, ClassRoom, ChildParentsRelation, Holiday
+from api.serializers import UserSerializer, ClassNameSerializers, SubjectSerializers, ClassRoomSerializers, HolidaySerializers
 
 
 # This api will be call by admin user for "Add User", "List User" & "Group wise list user"
@@ -57,7 +59,7 @@ class UserView(generics.RetrieveUpdateAPIView):
 
 
 class LoginView(APIView):
-    # permission_classes = (IsAuthenticated, )
+    #permission_classes = (IsAuthenticated, )
     def post(self, request, ):
         username = request.data.get("username")
         password = request.data.get("password")
@@ -85,6 +87,28 @@ class ClassRoomView(viewsets.ModelViewSet):
     serializer_class = ClassRoomSerializers
     queryset = ClassRoom.objects.all()
 
+class ChildParentsRelationView(APIView):
 
+    def get(self, request):
+        group = Group.objects.get(name="Parent")
+        parents = group.user_set.values("id", "first_name", "last_name")
+        parents = list(parents)
+
+
+        group = Group.objects.get(name="Student")
+
+        students = group.user_set.values("id","first_name","last_name")
+        students = list(students)
+
+        print({"parent" : parents, "student": students})
+
+        return JsonResponse({"parent" : parents, "student": students},safe=False)
+
+
+
+class HolidayView(viewsets.ModelViewSet):
+    permission_classes = (IsAuthenticated, IsAdminUser, permissions.DjangoModelPermissions)
+    serializer_class = HolidaySerializers
+    queryset = Holiday.objects.all()
 
 

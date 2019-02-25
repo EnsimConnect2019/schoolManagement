@@ -9,6 +9,12 @@ class ChildParentsRelation(models.Model):
     parent = models.ForeignKey(User, null=True, related_name='creator', on_delete=models.CASCADE)
 
 
+    class Meta:
+        unique_together = ('student', 'parent')
+
+
+
+
 # Class room no. table
 class ClassRoom(models.Model):
     class_room_name = models.CharField(unique=True, max_length=20)

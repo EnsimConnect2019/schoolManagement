@@ -2,7 +2,7 @@ from django.contrib.auth.models import User, Group
 from rest_framework import serializers
 from rest_framework.authtoken.models import Token
 
-from api.models import ClassRoom, Subject, ClassName
+from api.models import ClassRoom, Subject, ClassName, Holiday
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -21,7 +21,7 @@ class UserSerializer(serializers.ModelSerializer):
         try:
             group = Group.objects.get(name=request.data.get("role"))
         except:
-            raise serializers.ValidationError({"msg": "Please provide valid type"})
+            raise serializers.ValidationError({"msg": "Please provide valid role"})
         user.save()
         user.groups.add(group)
         Token.objects.create(user=user)
@@ -56,3 +56,7 @@ class ClassNameSerializers(serializers.ModelSerializer):
         fields = "__all__"
 
 
+class HolidaySerializers(serializers.ModelSerializer):
+    class Meta:
+        model = Holiday
+        fields = "__all__"

@@ -3,10 +3,23 @@ from django.db import models
 from django_mysql.models import EnumField
 
 
+def get_first_name(self):
+    first_name = models.CharField(unique=True, max_length=20)
+    return self.first_name
+
+    User.add_to_class("__str__", get_first_name)
+
+# class MyUser(User):#
+#     def __str__(self):
+#         return self.first_name
+
 # Student Parent relationship table
 class ChildParentsRelation(models.Model):
     student = models.ForeignKey(User, null=True, related_name='assignee', on_delete=models.CASCADE)
     parent = models.ForeignKey(User, null=True, related_name='creator', on_delete=models.CASCADE)
+
+    class Meta:
+        unique_together = ('student', 'parent')
 
 
 # Class room no. table
@@ -37,6 +50,9 @@ class ClassName(models.Model):
 class ClassSubject(models.Model):
     class_name = models.ForeignKey(ClassName, on_delete=models.CASCADE)
     subject = models.ForeignKey(Subject, on_delete=models.CASCADE)
+
+    class Meta:
+        unique_together = ('class_name', 'subject')
 
 
 # Student and Class Relation Table

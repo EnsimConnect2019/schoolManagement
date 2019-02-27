@@ -1,1 +1,5 @@
 venv/
+venv/*
+*.idea/
+*.idea/*
+*.idea/workspace.xml

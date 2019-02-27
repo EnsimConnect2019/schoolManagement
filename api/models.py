@@ -13,7 +13,6 @@ def get_first_name(self):
 #     def __str__(self):
 #         return self.first_name
 
-
 # Student Parent relationship table
 class ChildParentsRelation(models.Model):
     student = models.ForeignKey(User, null=True, related_name='assignee', on_delete=models.CASCADE)

@@ -45,7 +45,7 @@ class HolidayList(admin.ModelAdmin):
 	list_display = ('holiday_title', 'celebrate_on')
 	ordering = ('celebrate_on', )
 
-
+# for Attendance
 class AttendanceAdmin(admin.ModelAdmin):
 	list_display = ('present', 'student', 'schedule')
 

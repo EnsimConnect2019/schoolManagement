@@ -39,16 +39,19 @@ class UserSerializer(serializers.ModelSerializer):
 
         return instance
 
+
 class ClassRoomSerializers(serializers.ModelSerializer):
     class Meta:
         model = ClassRoom
         fields = "__all__"
         queryset = ClassRoom.objects.all()
 
+
 class SubjectSerializers(serializers.ModelSerializer):
     class Meta:
         model = Subject
         fields = "__all__"
+
 
 class ClassNameSerializers(serializers.ModelSerializer):
     class Meta:

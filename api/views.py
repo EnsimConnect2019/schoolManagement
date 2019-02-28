@@ -33,6 +33,17 @@ class UserCreate(generics.ListCreateAPIView):
         serializer = UserSerializer(queryset, many=True)
         return Response(serializer.data)
 
+#userlist view
+class UserListView(APIView):
+    permission_classes = (IsAuthenticated, IsAdminUser)
+
+    def get(self, request):
+        user = User.objects.values("id", "username", "first_name", "last_name", "email")
+        students = user.filter(groups__name="Student")
+        teachers = user.filter(groups__name="Teacher")
+        parents = user.filter(groups__name="Parent")
+        context = {"Students": list(students), "Teachers": list(teachers), "Parents": list(parents)}
+        return JsonResponse(context, status=status.HTTP_200_OK)
 
 # Admin can view all user profile and update users profile
 # Owner can view their profile and update their profile
@@ -56,7 +67,6 @@ class UserView(generics.RetrieveUpdateAPIView):
             return self.partial_update(request, *args, **kwargs)
         else:
             return Response(status=status.HTTP_401_UNAUTHORIZED, data={"msg": "Unauthorized Access"})
-
 #userlist view
 class UserListView(APIView):
     permission_classes = (IsAuthenticated, IsAdminUser)
@@ -68,6 +78,7 @@ class UserListView(APIView):
         parents = user.filter(groups__name="Parent")
         context = {"Students": list(students), "Teachers": list(teachers), "Parents": list(parents)}
         return JsonResponse(context, status=status.HTTP_200_OK)
+
 
 
 class LoginView(APIView):
@@ -90,6 +101,8 @@ class ClassNameView(generics.ListAPIView):
     permission_classes = (IsAuthenticated,)
     serializer_class = ClassNameSerializers
     queryset = ClassName.objects.all()
+
+
 
 
 class SubjectView(viewsets.ModelViewSet):

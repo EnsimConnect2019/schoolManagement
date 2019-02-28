@@ -18,7 +18,7 @@ from django.urls import path, include
 from rest_framework import routers
 
 from api import views
-from api.views import UserCreate, UserView, LoginView, ClassNameView, ChildParentsRelationView
+from api.views import UserCreate, UserView, LoginView, ClassNameView, ChildParentsRelationView, UserListView
 
 routerSubject = routers.DefaultRouter()
 routerSubject.register('', views.SubjectView)
@@ -29,6 +29,9 @@ routerClassRoom.register('', views.ClassRoomView)
 routerHoliday = routers.DefaultRouter()
 routerHoliday.register('', views.HolidayView)
 
+routerStudentClass = routers.DefaultRouter()
+routerStudentClass.register('', views.StudentClassView)
+
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/users', UserCreate.as_view()),
@@ -38,5 +41,6 @@ urlpatterns = [
     path('api/subjects/', include(routerSubject.urls)),
     path('api/classrooms/', include(routerClassRoom.urls)),
     path('api/childparentsrelation/', ChildParentsRelationView.as_view()),
-    path('api/holidays/', include(routerHoliday.urls))
+    path('api/holidays/', include(routerHoliday.urls)),
+    path('api/studentclass/', include(routerStudentClass.urls))
 ]

@@ -57,7 +57,7 @@ class UserView(generics.RetrieveUpdateAPIView):
         else:
             return Response(status=status.HTTP_401_UNAUTHORIZED, data={"msg": "Unauthorized Access"})
 
-
+#userlist view
 class UserListView(APIView):
     permission_classes = (IsAuthenticated, IsAdminUser)
 
@@ -146,6 +146,6 @@ class StudentClassView(viewsets.ModelViewSet):
 
     def list(self, request, *args, **kwargs):
         queryset = self.queryset.values("id","student_id","student__username","student__first_name","student__last_name",
-                                        "student__email","session_year","roll_no","class_name__class_text")
+                                        "student__email","session   _year","roll_no","class_name__class_text")
         print(queryset)
         return JsonResponse(list(queryset),status=status.HTTP_200_OK,safe=False)

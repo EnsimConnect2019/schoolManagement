@@ -83,7 +83,7 @@ class ScheduleTemplate(models.Model):
         return self.day
 
 
-# Daily Schedules
+# Daily Schedules update
 class Schedule(models.Model):
     schedule_date = models.DateField()
     start_time = models.DateTimeField()
@@ -95,7 +95,7 @@ class Schedule(models.Model):
     teacher = models.ForeignKey(User, on_delete=models.CASCADE)
 
     def __str__(self):
-        return self.schedule_date
+        return self.description
 
 
 # Holiday List Table
@@ -108,6 +108,7 @@ class Holiday(models.Model):
 
 
 # Student's Attendance Table
+
 class Attendance(models.Model):
     present = EnumField(choices=['Yes', 'No'])
     student = models.ForeignKey(User, on_delete=models.CASCADE)

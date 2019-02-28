@@ -4,4 +4,4 @@ venv/*
 *.idea/*
 *.idea/workspace.xml
 school/settings.py
-school/__init__.py
+manage.py

@@ -139,13 +139,17 @@ class ChildParentsRelationView(APIView):
 
 
 class StudentClassView(viewsets.ModelViewSet):
-    permission_classes = (IsAuthenticated, IsAdminUser)
+    permission_classes = (IsAuthenticated, permissions.DjangoModelPermissions)
     serializer_class = StudentClassSerializers
     queryset = StudentClass.objects.select_related("student").all()
-    print(queryset.query)
 
     def list(self, request, *args, **kwargs):
+        user = request.user
+        role = user.groups.all()[0]
         queryset = self.queryset.values("id","student_id","student__username","student__first_name","student__last_name",
                                         "student__email","session_year","roll_no","class_name__class_text")
-        print(queryset)
+        if str(role) == "Parent":
+            student_id = ChildParentsRelation.objects.values("student_id").filter(parent= user)
+            queryset = queryset.filter(student_id__in = student_id)
+
         return JsonResponse(list(queryset),status=status.HTTP_200_OK,safe=False)

@@ -83,7 +83,7 @@ class ScheduleTemplate(models.Model):
         return self.day
 
 
-# Daily Schedules
+# Daily Schedules update
 class Schedule(models.Model):
     schedule_date = models.DateField()
     start_time = models.DateTimeField()

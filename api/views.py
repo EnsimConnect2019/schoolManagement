@@ -1,18 +1,18 @@
 from django.contrib.auth import authenticate
 from django.contrib.auth.models import User, Group
 from django.core.exceptions import ObjectDoesNotExist
+from itertools import chain
 
 # Create your views here.
-from django.db import IntegrityError
 from django.http import JsonResponse
 
-from rest_framework import generics, status, viewsets, permissions
+from rest_framework import generics, status, viewsets, permissions, serializers
 from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from api.models import ClassName, Subject, ClassRoom, ChildParentsRelation, Holiday, StudentClass
-from api.serializers import UserSerializer, ClassNameSerializers, SubjectSerializers, ClassRoomSerializers, HolidaySerializers, StudentClassSerializers
+from api.models import ClassName, Subject, ClassRoom, ChildParentsRelation, Holiday
+from api.serializers import UserSerializer, ClassNameSerializers, SubjectSerializers, ClassRoomSerializers, HolidaySerializers
 
 
 # This api will be call by admin user for "Add User", "List User" & "Group wise list user"
@@ -58,18 +58,6 @@ class UserView(generics.RetrieveUpdateAPIView):
             return Response(status=status.HTTP_401_UNAUTHORIZED, data={"msg": "Unauthorized Access"})
 
 
-class UserListView(APIView):
-    permission_classes = (IsAuthenticated, IsAdminUser)
-
-    def get(self, request):
-        user = User.objects.values("id", "username", "first_name", "last_name", "email")
-        students = user.filter(groups__name="Student")
-        teachers = user.filter(groups__name="Teacher")
-        parents = user.filter(groups__name="Parent")
-        context = {"Students": list(students), "Teachers": list(teachers), "Parents": list(parents)}
-        return JsonResponse(context, status=status.HTTP_200_OK)
-
-
 class LoginView(APIView):
     #permission_classes = (IsAuthenticated, )
     def post(self, request, ):
@@ -82,26 +70,40 @@ class LoginView(APIView):
         else:
             return Response({'error': "Wrong Credentials"}, status=status.HTTP_400_BAD_REQUEST)
 
-
 # This api will be used by all user to see list of classes
 # Path: api/classes
-
 class ClassNameView(generics.ListAPIView):
     permission_classes = (IsAuthenticated,)
     serializer_class = ClassNameSerializers
     queryset = ClassName.objects.all()
-
 
 class SubjectView(viewsets.ModelViewSet):
     permission_classes = (IsAuthenticated, permissions.DjangoModelPermissions)
     serializer_class = SubjectSerializers
     queryset = Subject.objects.all()
 
-
 class ClassRoomView(viewsets.ModelViewSet):
     permission_classes = (IsAuthenticated, IsAdminUser, permissions.DjangoModelPermissions)
     serializer_class = ClassRoomSerializers
     queryset = ClassRoom.objects.all()
+
+class ChildParentsRelationView(APIView):
+
+    def get(self, request):
+        group = Group.objects.get(name="Parent")
+        parents = group.user_set.values("id", "first_name", "last_name")
+        parents = list(parents)
+
+
+        group = Group.objects.get(name="Student")
+
+        students = group.user_set.values("id","first_name","last_name")
+        students = list(students)
+
+        print({"parent" : parents, "student": students})
+
+        return JsonResponse({"parent" : parents, "student": students},safe=False)
+
 
 
 class HolidayView(viewsets.ModelViewSet):
@@ -110,42 +112,3 @@ class HolidayView(viewsets.ModelViewSet):
     queryset = Holiday.objects.all()
 
 
-class ChildParentsRelationView(APIView):
-    permission_classes = {IsAuthenticated, IsAdminUser}
-
-    def get(self, request):
-
-        parents = list(User.objects.values("id", "first_name", "last_name").filter(groups__name="Parent"))
-        students = User.objects.values("id", "first_name", "last_name").filter(groups__name="Student")
-        students = list(students.exclude(id__in = ChildParentsRelation.objects.values("student")))
-
-        return JsonResponse({"parents": parents, "students": students}, safe=False)
-
-    def post(self, request):
-        try:
-            student = User.objects.filter(groups__name="Student").get(id = request.data.get("student"))
-            parent = User.objects.filter(groups__name="Parent").get(id = request.data.get("parent"))
-            record = ChildParentsRelation.objects.filter(student = student, parent= parent)
-            if record:
-                return JsonResponse({"detail": "Data already available"}, status=status.HTTP_302_FOUND)
-            else:
-                a = ChildParentsRelation(student= student, parent= parent)
-                a.save()
-                return JsonResponse({"detail": "Data saved successfully"},status=status.HTTP_201_CREATED)
-        except IntegrityError:
-            return JsonResponse({"detail": "Please provide valid id"},status = status.HTTP_400_BAD_REQUEST)
-        except ObjectDoesNotExist:
-            return JsonResponse({"detail": "Please provide valid student and parent id"}, status=status.HTTP_400_BAD_REQUEST)
-
-
-class StudentClassView(viewsets.ModelViewSet):
-    permission_classes = (IsAuthenticated, IsAdminUser)
-    serializer_class = StudentClassSerializers
-    queryset = StudentClass.objects.select_related("student").all()
-    print(queryset.query)
-
-    def list(self, request, *args, **kwargs):
-        queryset = self.queryset.values("id","student_id","student__username","student__first_name","student__last_name",
-                                        "student__email","session_year","roll_no","class_name__class_text")
-        print(queryset)
-        return JsonResponse(list(queryset),status=status.HTTP_200_OK,safe=False)

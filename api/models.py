@@ -108,6 +108,7 @@ class Holiday(models.Model):
 
 
 # Student's Attendance Table
+
 class Attendance(models.Model):
     present = EnumField(choices=['Yes', 'No'])
     student = models.ForeignKey(User, on_delete=models.CASCADE)

@@ -40,7 +40,7 @@ class ScheduleTemplateAdmin(admin.ModelAdmin):
 class ScheduleAdmin(admin.ModelAdmin):
 	list_display = ('schedule_date', 'start_time', 'end_time', 'description', 'class_name', 'class_room', 'subject', 'teacher')
 
-
+# for HolidayList
 class HolidayList(admin.ModelAdmin):
 	list_display = ('holiday_title', 'celebrate_on')
 	ordering = ('celebrate_on', )

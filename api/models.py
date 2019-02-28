@@ -95,7 +95,7 @@ class Schedule(models.Model):
     teacher = models.ForeignKey(User, on_delete=models.CASCADE)
 
     def __str__(self):
-        return self.schedule_date
+        return self.description
 
 
 # Holiday List Table

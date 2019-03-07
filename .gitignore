@@ -3,3 +3,5 @@ venv/*
 *.idea/
 *.idea/*
 *.idea/workspace.xml
+school/settings.py
+manage.py

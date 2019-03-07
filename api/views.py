@@ -10,10 +10,9 @@ from rest_framework import generics, status, viewsets, permissions
 from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from rest_framework import mixins
 
-from api.models import ClassName, Subject, ClassRoom, ChildParentsRelation, Holiday, StudentClass, Schedule, ScheduleTemplate,  Attendance
-from api.serializers import UserSerializer, ClassNameSerializers, SubjectSerializers, ClassRoomSerializers, HolidaySerializers, StudentClassSerializers, AttendanceSerializers, AttSerializers
+from api.models import ClassName, Subject, ClassRoom, ChildParentsRelation, Holiday, StudentClass
+from api.serializers import UserSerializer, ClassNameSerializers, SubjectSerializers, ClassRoomSerializers, HolidaySerializers, StudentClassSerializers
 
 
 # This api will be call by admin user for "Add User", "List User" & "Group wise list user"
@@ -57,7 +56,6 @@ class UserView(generics.RetrieveUpdateAPIView):
             return self.partial_update(request, *args, **kwargs)
         else:
             return Response(status=status.HTTP_401_UNAUTHORIZED, data={"msg": "Unauthorized Access"})
-
 
 #userlist view
 class UserListView(APIView):
@@ -144,27 +142,10 @@ class StudentClassView(viewsets.ModelViewSet):
     permission_classes = (IsAuthenticated, IsAdminUser)
     serializer_class = StudentClassSerializers
     queryset = StudentClass.objects.select_related("student").all()
+    print(queryset.query)
 
     def list(self, request, *args, **kwargs):
         queryset = self.queryset.values("id","student_id","student__username","student__first_name","student__last_name",
                                         "student__email","session   _year","roll_no","class_name__class_text")
-
-        return JsonResponse(list(queryset), status=status.HTTP_200_OK,safe=False)
-
-
-class AttendanceView(APIView):
-    def get(self, request, format=None):
-        a_list = Attendance.objects.all()
-        serializer = AttendanceSerializers(a_list, many=True)
-        return Response(serializer.data)
-
-    def post(self, request, format=None):
-        present = request.data.get("present")
-        schedule = request.data['schedule']['id']
-        student = request.data['student']['id']
-        data = {'student': student, 'schedule': schedule, 'present': present}
-        serializer = AttSerializers(data=data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        print(queryset)
+        return JsonResponse(list(queryset),status=status.HTTP_200_OK,safe=False)

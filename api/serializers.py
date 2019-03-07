@@ -2,7 +2,7 @@ from django.contrib.auth.models import User, Group
 from rest_framework import serializers
 from rest_framework.authtoken.models import Token
 
-from api.models import ClassRoom, Subject, ClassName, Holiday, StudentClass
+from api.models import ClassRoom, Subject, ClassName, Holiday, StudentClass, Schedule, ScheduleTemplate,  Attendance
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -68,4 +68,25 @@ class HolidaySerializers(serializers.ModelSerializer):
 class StudentClassSerializers(serializers.ModelSerializer):
     class Meta:
         model = StudentClass
+        fields = "__all__"
+
+
+class ScheduleSerializers(serializers.ModelSerializer):
+    class Meta:
+        model = Schedule
+        fields = "__all__"
+
+
+class AttendanceSerializers(serializers.ModelSerializer):
+    schedule = ScheduleSerializers(many=False, read_only=True)
+    student = UserSerializer(many=False, required=False, read_only=True)
+
+    class Meta:
+        model = Attendance
+        fields = ('id', 'present', 'schedule', 'student')
+
+
+class AttSerializers(serializers.ModelSerializer):
+    class Meta:
+        model = Attendance
         fields = "__all__"

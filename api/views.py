@@ -11,8 +11,9 @@ from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from api.models import ClassName, Subject, ClassRoom, ChildParentsRelation, Holiday, StudentClass
-from api.serializers import UserSerializer, ClassNameSerializers, SubjectSerializers, ClassRoomSerializers, HolidaySerializers, StudentClassSerializers
+from api.models import ClassName, Subject, ClassRoom, ChildParentsRelation, Holiday, StudentClass, Attendance
+from api.serializers import UserSerializer, ClassNameSerializers, SubjectSerializers, ClassRoomSerializers,\
+                            HolidaySerializers, StudentClassSerializers, AttendanceSerializers, AttSerializers
 
 
 # This api will be call by admin user for "Add User", "List User" & "Group wise list user"
@@ -149,3 +150,22 @@ class StudentClassView(viewsets.ModelViewSet):
                                         "student__email","session   _year","roll_no","class_name__class_text")
         print(queryset)
         return JsonResponse(list(queryset),status=status.HTTP_200_OK,safe=False)
+
+class AttendanceView(APIView):
+
+    def get(self, request, format=None):
+        attlist = Attendance.objects.all()
+        serializer = AttendanceSerializers(attlist, many=True)
+        return Response(serializer.data)
+
+
+    def post(self, request, format=None):
+        present = request.data.get("present")
+        schedule = request.data['schedule']['id']
+        student = request.data['student']['id']
+        data = {'student': student, 'schedule': schedule, 'present': present}
+        serializer = AttSerializers(data=data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
